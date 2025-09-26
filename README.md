@@ -1,2 +1,3 @@
 # CSE360_TEAM36
-Repo for the team project in CSE360 F25 for team 36
+This is a Repository for Team 36 of CSE360 Fall 25
+Inside here will be all the folders required for each phase of the team project
