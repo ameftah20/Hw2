@@ -1,3 +1,6 @@
-# CSE360_TEAM36
-This is a Repository for Team 36 of CSE360 Fall 25
-Inside here will be all the folders required for each phase of the team project
+# 🚀 CSE360 – Team Project (Fall 2025)
+
+Welcome to **CSE360 Team Project Repository**!  
+This is the **SPOT** for everything related to the project this semester.  
+
+All project **phases** will be tracked, documented, and stored here
