@@ -39,7 +39,7 @@ public class ViewMultipleRoleDispatch {
 	/*-****************************************************************************************
 	
 		Attributes
-	
+	  //testing out github- ahmed
 	 */
 
 	// These are the application values required by the user interface
