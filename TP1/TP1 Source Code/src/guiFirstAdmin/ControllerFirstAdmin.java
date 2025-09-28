@@ -1,155 +1,153 @@
 package guiFirstAdmin;
 
 import java.sql.SQLException;
+
 import database.Database;
 import entityClasses.User;
-import fieldCheckTools.passChecker;
-import fieldCheckTools.userChecker;
 import javafx.stage.Stage;
+import javafx.scene.paint.Color; // for message color
 
+// Username & Password recognizers (your existing classes)
+import userNameRecognizerTestbed.UserNameRecognizer;
+import passwordPopUpWindow.Model;
+
+/*******
+ * <p> Title: ControllerFirstAdmin Class </p>
+ *
+ * <p> Description: Controller for the First Admin setup page. This controller
+ * collects the current values from the View, validates them using the FSM-based
+ * recognizers, drives the status message (single line), and enables/disables
+ * the Setup button accordingly. Empty string from a recognizer means “valid”. </p>
+ *
+ * <p> Copyright: Lynn Robert Carter © 2025 </p>
+ *
+ * @author Lynn Robert Carter
+ *
+ * @version 1.01    2025-09-09 Add live validation (username/password + match),
+ *                              button enable/disable, and helpful messages.
+ */
 public class ControllerFirstAdmin {
-	/*-********************************************************************************************
-	
-	The controller attributes for this page
-	
-	This controller is not a class that gets instantiated.  Rather, it is a collection of protected
-	static methods that can be called by the View (which is a singleton instantiated object) and 
-	the Model is often just a stub, or will be a singleton instantiated object.
-	
-	*/
 
-	private static String adminUsername = "";
-	private static String adminPassword1 = "";
-	private static String adminPassword2 = "";
-	protected static Database theDatabase = applicationMain.FoundationsMain.database;
+    /*-********************************************************************************************
+     * Controller attributes for this page (kept as simple cached fields)
+     **********************************************************************************************/
+    private static String adminUsername = "";
+    private static String adminPassword1 = "";
+    private static String adminPassword2 = "";
 
-	/*-********************************************************************************************
-	
-	The User Interface Actions for this page
-	
-	*/
+    // Database is provided by the application’s singleton
+    protected static Database theDatabase = applicationMain.FoundationsMain.database;
 
-	/**********
-	 * <p>
-	 * Method: setAdminUsername()
-	 * </p>
-	 * 
-	 * <p>
-	 * Description: This method is called when the user adds text to the username
-	 * field in the View. A private local copy of what was last entered is kept
-	 * here.
-	 * </p>
-	 * 
-	 */
-	protected static void setAdminUsername() {
-		adminUsername = ViewFirstAdmin.text_AdminUsername.getText();
-	}
+    /*-********************************************************************************************
+     * UI actions (called by the View’s text listeners and buttons)
+     **********************************************************************************************/
 
-	/**********
-	 * <p>
-	 * Method: setAdminPassword1()
-	 * </p>
-	 * 
-	 * <p>
-	 * Description: This method is called when the user adds text to the password 1
-	 * field in the View. A private local copy of what was last entered is kept
-	 * here.
-	 * </p>
-	 * 
-	 */
-	protected static void setAdminPassword1() {
-		adminPassword1 = ViewFirstAdmin.text_AdminPassword1.getText();
-		ViewFirstAdmin.label_PasswordsDoNotMatch.setText("");
-	}
+    /**********
+     * <p> Method: setAdminUsername() </p>
+     *
+     * <p> Description: Called when the username field changes. A private local copy is saved
+     * and the form is validated to provide immediate feedback and toggle the button. </p>
+     */
+    protected static void setAdminUsername() {
+        adminUsername = ViewFirstAdmin.text_AdminUsername.getText();
+        validateForm();
+    }
 
-	/**********
-	 * <p>
-	 * Method: setAdminPassword2()
-	 * </p>
-	 * 
-	 * <p>
-	 * Description: This method is called when the user adds text to the password 2
-	 * field in the View. A private local copy of what was last entered is kept
-	 * here.
-	 * </p>
-	 * 
-	 */
-	protected static void setAdminPassword2() {
-		adminPassword2 = ViewFirstAdmin.text_AdminPassword2.getText();
-		ViewFirstAdmin.label_PasswordsDoNotMatch.setText("");
-	}
+    /**********
+     * <p> Method: setAdminPassword1() </p>
+     *
+     * <p> Description: Called when the first password field changes. Saves a local copy and
+     * re-validates. </p>
+     */
+    protected static void setAdminPassword1() {
+        adminPassword1 = ViewFirstAdmin.text_AdminPassword1.getText();
+        validateForm();
+    }
 
-	/**********
-	 * <p>
-	 * Method: doSetupAdmin()
-	 * </p>
-	 * 
-	 * <p>
-	 * Description: This method is called when the user presses the button to set up
-	 * the Admin account. It start by trying to establish a new user and placing
-	 * that user into the database. If that is successful, we proceed to the
-	 * UserUpdate page.
-	 * </p>
-	 * 
-	 */
-	protected static void doSetupAdmin(Stage ps, int r) {
-		String errMsg = "";
-		String temp = "";
-		//Check to make sure that the user name is valid
-		//Set the errMsg string to the result of the user name check
-		if ((errMsg = userChecker.checkForValidUserName(adminUsername)).compareTo("") != 0) 
-		{
-			errMsg = "Invalid Username:\n" + errMsg + "\n";
-		}
-		if (adminPassword1.compareTo(adminPassword2) != 0) 
-		{
-			ViewFirstAdmin.text_AdminPassword1.setText("");
-			ViewFirstAdmin.text_AdminPassword2.setText("");
-			errMsg = errMsg + "Invalid Password:\nThe two passwords must match. Please try again!";
-		//Using a temp var in order to make sure the error message is ordered properly and I don't have to run the password check again
-		//Checks the password using the password checker then adds it to a temp variable
-		} else if ((temp = passChecker.evaluatePassword(adminPassword1)).compareTo("") != 0) 
-		{
-			errMsg = errMsg + "Invalid Password:\n" + temp;
-		}
-		System.out.print(errMsg);
-		//Make sure there are no error message to display 
-		if (errMsg == "") 
-		{
-			// Create the passwords and proceed to the user home page
-			User user = new User(adminUsername, adminPassword1, "", "", "", "", "", true, false, false);
-			try {
-				// Create a new User object with admin role and register in the database
-				theDatabase.register(user);
-			} catch (SQLException e) {
-				System.err.println("*** ERROR *** Database error trying to register a user: " + e.getMessage());
-				e.printStackTrace();
-				System.exit(0);
-			}
-			
-			// User was established in the database, so navigate to the User Update Page
-			guiUserUpdate.ViewUserUpdate.displayUserUpdate(ViewFirstAdmin.theStage, user);
-			
-		//If the error message contains an error set the errMsg to the do not match label.
-		} else {
-			ViewFirstAdmin.label_PasswordsDoNotMatch.setText(errMsg);
-		}
-	}
+    /**********
+     * <p> Method: setAdminPassword2() </p>
+     *
+     * <p> Description: Called when the second password field changes. Saves a local copy and
+     * re-validates. </p>
+     */
+    protected static void setAdminPassword2() {
+        adminPassword2 = ViewFirstAdmin.text_AdminPassword2.getText();
+        validateForm();
+    }
 
-	/**********
-	 * <p>
-	 * Method: performQuit()
-	 * </p>
-	 * 
-	 * <p>
-	 * Description: This method terminates the execution of the program. It leaves
-	 * the database in a state where the normal login page will be displayed when
-	 * the application is restarted.
-	 * </p>
-	 * 
-	 */
-	protected static void performQuit() {
-		System.out.println("Perform Quit");
-		System.exit(0);
-	}
+    /**********
+     * <p> Method: doSetupAdmin(Stage, int) </p>
+     *
+     * <p> Description: Called when the user presses “Setup Admin Account”.
+     * Defensively validates again; if valid, creates the admin user and navigates. </p>
+     */
+    protected static void doSetupAdmin(Stage ps, int r) {
+
+        // Defensive validation (button should already be enabled only when valid)
+        if (!validateForm()) return;
+
+        // Create the user and store in DB
+        User user = new User(adminUsername, adminPassword1, "", "", "", "", "", true, false, false);
+
+        try {
+            theDatabase.register(user);
+        } catch (SQLException e) {
+            System.err.println("*** ERROR *** Database error trying to register a user: " + e.getMessage());
+            e.printStackTrace();
+            // Show a friendly message in the same status label
+            ViewFirstAdmin.showFormMessage("Database error while creating the admin user.\nPlease try again.", true);
+            return;
+        }
+
+        // Success → move to User Update page
+        guiUserUpdate.ViewUserUpdate.displayUserUpdate(ViewFirstAdmin.theStage, user);
+    }
+
+    /**********
+     * <p> Method: performQuit() </p>
+     *
+     * <p> Description: Terminates the application. </p>
+     */
+    protected static void performQuit() {
+        System.out.println("Perform Quit");
+        System.exit(0);
+    }
+
+    /*-********************************************************************************************
+     * Private helpers
+     **********************************************************************************************/
+
+    /**
+     * Validate the three inputs using the FSM recognizers and simple equality check.
+     * Drives the single-line message and toggles the button. Returns true iff valid.
+     */
+    private static boolean validateForm() {
+        // Username validator (empty string means OK)
+        String uErr = UserNameRecognizer.checkForValidUserName(adminUsername);
+        if (!uErr.isEmpty()) {
+            ViewFirstAdmin.showFormMessage(uErr, true);
+            ViewFirstAdmin.setAdminSetupEnabled(false);
+            return false;
+        }
+
+        // Password validator (8–32, at least one of each class; empty string means OK)
+        String pErr = Model.evaluatePassword(adminPassword1);
+        if (!pErr.isEmpty()) {
+            ViewFirstAdmin.showFormMessage(pErr, true);
+            ViewFirstAdmin.setAdminSetupEnabled(false);
+            return false;
+        }
+
+        // Confirm match (only after base password is valid to avoid noisy messages)
+        if (adminPassword1 == null || !adminPassword1.equals(adminPassword2)) {
+            ViewFirstAdmin.showFormMessage("The two passwords must match. Please try again!\n", true);
+            ViewFirstAdmin.setAdminSetupEnabled(false);
+            return false;
+        }
+
+        // Everything looks good
+        ViewFirstAdmin.showFormMessage("Success! Username and password are valid.", false);
+        ViewFirstAdmin.setAdminSetupEnabled(true);
+        return true;
+    }
 }
