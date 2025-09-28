@@ -59,8 +59,24 @@ public class ControllerNewAccount {
 		int roleCode = 0;
 		User user = null;
 
-		//Check to see if the username is valid, if not add it to the error message.
-		if ((errMsg = userChecker.checkForValidUserName(username)) != "") 
+		//Check to see if the user name is unique, if not give an error message
+		if (theDatabase.doesUserExist(username)) 
+		{
+			errMsg = "Invalid UserName:\nThis user name is already taken"; //Add to error message
+			
+			String exampleUser = username + "0";
+			int i = 0;
+			while(theDatabase.doesUserExist(exampleUser)) 
+			{
+				i++;
+				exampleUser = username + i;
+			}
+			
+			errMsg += "\nTry \"" + exampleUser + "\"\n";
+			
+			
+		//Check to see if the user name is valid, if not add it to the error message.
+		} else if ((errMsg = userChecker.checkForValidUserName(username)) != "") 
 		{
 			errMsg = "Invalid UserName:\n" + errMsg; //Add to the error message
 		}

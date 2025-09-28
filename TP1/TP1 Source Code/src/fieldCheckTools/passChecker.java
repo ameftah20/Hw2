@@ -1,5 +1,20 @@
 package fieldCheckTools;
 
+/*******
+ * <p>
+ * Title: passChecker Class
+ * </p>
+ * 
+ * <p>
+ * Description: This class is part of the field checker package and allows for consistent
+ * checking of password fields throughout the application. When calling the main function it will
+ * return an error message if the password is invalid.
+ * </p>
+ * 
+ * 
+ * @author Lucas Conklin
+ * 
+ */
 public class passChecker {
 	
 	
@@ -9,7 +24,6 @@ public class passChecker {
 	public static boolean foundUpperCase = false;
 	public static boolean foundLowerCase = false;
 	public static boolean foundNumericDigit = false;
-	public static boolean foundSpecialChar = false;
 	public static boolean foundLongEnough = false;
 	private static String inputLine = ""; // The input line
 	private static char currentChar; // The current character in the line
@@ -42,7 +56,6 @@ public class passChecker {
 		foundUpperCase = false; // Reset the Boolean flag
 		foundLowerCase = false; // Reset the Boolean flag
 		foundNumericDigit = false; // Reset the Boolean flag
-		foundSpecialChar = false; // Reset the Boolean flag
 		foundNumericDigit = false; // Reset the Boolean flag
 		foundLongEnough = false; // Reset the Boolean flag
 
@@ -66,9 +79,6 @@ public class passChecker {
 			} else if (currentChar >= '0' && currentChar <= '9') {
 				System.out.println("Digit found");
 				foundNumericDigit = true;
-			} else if ("~`!@#$%^&*()_-+={}[]|\\:;\"'<>,.?/".indexOf(currentChar) >= 0) {
-				System.out.println("Special character found");
-				foundSpecialChar = true;
 			} else {
 				passwordIndexofError = currentCharNdx;
 				return "An invalid character has been found!";
@@ -106,12 +116,8 @@ public class passChecker {
 		if (!foundNumericDigit)
 			errMessage += "Numeric digit, ";
 
-		if (!foundSpecialChar)
-			errMessage += "Special character, ";
-
 		if (!foundLongEnough)
 			errMessage += "Between 8-32 Chars, "; // Changed the text of this to be more in line with the new length
-													// requirements
 
 		if (errMessage == "")
 			return "";

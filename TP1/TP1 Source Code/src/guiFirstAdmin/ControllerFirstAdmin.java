@@ -59,7 +59,7 @@ public class ControllerFirstAdmin {
 	 */
 	protected static void setAdminPassword1() {
 		adminPassword1 = ViewFirstAdmin.text_AdminPassword1.getText();
-		ViewFirstAdmin.label_PasswordsDoNotMatch.setText("");
+		ViewFirstAdmin.label_Invalid_Input.setText("");
 	}
 
 	/**********
@@ -76,7 +76,7 @@ public class ControllerFirstAdmin {
 	 */
 	protected static void setAdminPassword2() {
 		adminPassword2 = ViewFirstAdmin.text_AdminPassword2.getText();
-		ViewFirstAdmin.label_PasswordsDoNotMatch.setText("");
+		ViewFirstAdmin.label_Invalid_Input.setText("");
 	}
 
 	/**********
@@ -132,7 +132,7 @@ public class ControllerFirstAdmin {
 			
 		//If the error message contains an error set the errMsg to the do not match label.
 		} else {
-			ViewFirstAdmin.label_PasswordsDoNotMatch.setText(errMsg);
+			ViewFirstAdmin.label_Invalid_Input.setText(errMsg);
 		}
 	}
 
