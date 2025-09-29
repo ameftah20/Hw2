@@ -12,7 +12,10 @@ package fieldCheckTools;
  * </p>
  * 
  * 
- * @author Lucas Conklin
+ * @author Lucas Conklin, Lynn Robert Carter
+ * 
+ * 
+ * @version 1.00 Function adapted from example given by Professor Carter to fit it's use case in the foundations code
  * 
  */
 public class passChecker {
