@@ -83,12 +83,13 @@ public class emailChecker
 		//Now Special Chars Need to be checked
 		
 		//Find first path
-		String[] domainPaths = domainIn.split("."); //Split the domain by each .
+		String[] domainPaths = domainIn.split("\\."); //Split the domain by each .
 		
 		
 		//For each section in the domain check if it has special characters and meets length requirements
 		for(int i = 0; i < domainPaths.length; i++) 
 		{
+			//Check for length requirements and special chars
 			if (containsNonAlphaNumeric(domainPaths[i]) || domainPaths[i].length() > 63 || domainPaths[i].length() < 1) 
 			{
 				return "Invalid Email:\nMust be in the form example@email.com";

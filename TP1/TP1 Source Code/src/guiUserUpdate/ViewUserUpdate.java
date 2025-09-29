@@ -13,6 +13,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import entityClasses.User;
 import fieldCheckTools.emailChecker;
+import fieldCheckTools.nameChecker;
 import javafx.scene.control.Alert;
 
 /*******
@@ -128,6 +129,11 @@ public class ViewUserUpdate {
 	
 	//Alert panel for when the user inputs incorrect information
 	private static Alert invalidInputAlert = new Alert(Alert.AlertType.ERROR);
+	
+	
+	//String Variables to adjust the name error texts
+	private static String nameErrorTitle = "Operation Incomplete";
+	private static String nameErrorHeader = "Invalid Name Input";
 
 	/*-********************************************************************************************
 	
@@ -302,7 +308,22 @@ public class ViewUserUpdate {
 		setupButtonUI(button_UpdateFirstName, "Dialog", 18, 275, Pos.CENTER, 500, 193);
 		button_UpdateFirstName.setOnAction((event) -> {
 			result = dialogUpdateFirstName.showAndWait();
-			result.ifPresent(name -> theDatabase.updateFirstName(theUser.getUserName(), result.get()));
+			result.ifPresent(name -> {
+				String errMessage = nameChecker.evaluateName(name); //Evaluate Name
+				
+				//If No Errors Update Name
+				if(errMessage == "")
+					theDatabase.updateFirstName(theUser.getUserName(), nameChecker.formatName(result.get()));
+				else 
+				{
+					//Set up the Alert Box
+					invalidInputAlert.setTitle(nameErrorTitle);
+					invalidInputAlert.setHeaderText(nameErrorHeader);
+					invalidInputAlert.setContentText("Reason: " + errMessage + "\n\nPlease Make Changes and Try Again");
+					invalidInputAlert.showAndWait();
+				}
+			});
+			
 			theDatabase.getUserAccountDetails(theUser.getUserName());
 			String newName = theDatabase.getCurrentFirstName();
 			theUser.setFirstName(newName);
@@ -320,10 +341,19 @@ public class ViewUserUpdate {
 			result = dialogUpdateMiddleName.showAndWait();
 			result.ifPresent(name -> 
 			{
-				String errMessage = nameChecker.evaluateName(name);
+				String errMessage = nameChecker.evaluateName(name); //Evaluate Name
 				
-				
-				theDatabase.updateMiddleName(theUser.getUserName(), result.get());
+				//If No Errors Update Name
+				if(errMessage == "")
+					theDatabase.updateMiddleName(theUser.getUserName(), nameChecker.formatName(result.get()));
+				else 
+				{
+					//Set up the Alert Box
+					invalidInputAlert.setTitle(nameErrorTitle);
+					invalidInputAlert.setHeaderText(nameErrorHeader);
+					invalidInputAlert.setContentText("Reason: " + errMessage + "\n\nPlease Make Changes and Try Again");
+					invalidInputAlert.showAndWait();
+				}
 			});
 			theDatabase.getUserAccountDetails(theUser.getUserName());
 			String newName = theDatabase.getCurrentMiddleName();
@@ -340,7 +370,21 @@ public class ViewUserUpdate {
 		setupButtonUI(button_UpdateLastName, "Dialog", 18, 275, Pos.CENTER, 500, 293);
 		button_UpdateLastName.setOnAction((event) -> {
 			result = dialogUpdateLastName.showAndWait();
-			result.ifPresent(name -> theDatabase.updateLastName(theUser.getUserName(), result.get()));
+			result.ifPresent(name -> {
+				String errMessage = nameChecker.evaluateName(name); //Evaluate Name
+				
+				//If No Errors Update Name
+				if(errMessage == "")
+					theDatabase.updateLastName(theUser.getUserName(), nameChecker.formatName(result.get()));
+				else 
+				{
+					//Set up the Alert Box
+					invalidInputAlert.setTitle(nameErrorTitle);
+					invalidInputAlert.setHeaderText(nameErrorHeader);
+					invalidInputAlert.setContentText("Reason: " + errMessage + "\n\nPlease Make Changes and Try Again");
+					invalidInputAlert.showAndWait();
+				}
+			});
 			theDatabase.getUserAccountDetails(theUser.getUserName());
 			String newName = theDatabase.getCurrentLastName();
 			theUser.setLastName(newName);
@@ -356,7 +400,21 @@ public class ViewUserUpdate {
 		setupButtonUI(button_UpdatePreferredFirstName, "Dialog", 18, 275, Pos.CENTER, 500, 343);
 		button_UpdatePreferredFirstName.setOnAction((event) -> {
 			result = dialogUpdatePreferredFirstName.showAndWait();
-			result.ifPresent(name -> theDatabase.updatePreferredFirstName(theUser.getUserName(), result.get()));
+			result.ifPresent(name -> {
+				String errMessage = nameChecker.evaluateName(name); //Evaluate Name
+				
+				//If No Errors Update Name
+				if(errMessage == "")
+					theDatabase.updatePreferredFirstName(theUser.getUserName(), nameChecker.formatName(result.get()));
+				else 
+				{
+					//Set up the Alert Box
+					invalidInputAlert.setTitle(nameErrorTitle);
+					invalidInputAlert.setHeaderText(nameErrorHeader);
+					invalidInputAlert.setContentText("Reason: " + errMessage + "\n\nPlease Make Changes and Try Again");
+					invalidInputAlert.showAndWait();
+				}
+			});
 			theDatabase.getUserAccountDetails(theUser.getUserName());
 			String newName = theDatabase.getCurrentPreferredFirstName();
 			theUser.setPreferredFirstName(newName);
@@ -379,13 +437,13 @@ public class ViewUserUpdate {
 				
 				//If there is no issues update the email address
 				if(errMessage == "")
-					theDatabase.updateEmailAddress(theUser.getUserName(), result.get());
+					theDatabase.updateEmailAddress(theUser.getUserName(), result.get().toLowerCase());
 				else 
 				{
 					//Set up the Alert Box
 					invalidInputAlert.setTitle("Operation Incomplete");
 					invalidInputAlert.setHeaderText("Invalid Email Address!");
-					invalidInputAlert.setContentText("Must be in the form example@email.com\nCorrect the email address and try again");
+					invalidInputAlert.setContentText("Must be in the form example@email.com\n\nCorrect the email address and try again");
 					invalidInputAlert.showAndWait();
 				}
 			} );

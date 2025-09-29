@@ -39,9 +39,15 @@ public class nameChecker {
 	}
 	
 	//Checks if input is valid
-	public String evaluateName(String name) 
+	public static String evaluateName(String name) 
 	{
 		String newName = name;
+		
+		if (newName.length() < 1)         //Check if Input Too Short 
+			return "Input Empty";
+		else if (newName.length() > 255)  //Check if Input Too Long
+			return "Input Too Long";
+		
 		
 		//Check if the name has double dashes, or has one at beginning/end
 		if(newName.contains("--") || newName.charAt(0) == '-' || newName.charAt(newName.length() - 1) == '-') 
@@ -56,5 +62,26 @@ public class nameChecker {
 			return "Contains Non-Alphabetical Characters"; //Return Error Message
 		else
 			return "";
+	}
+	
+	
+	//Formats a Name so the capitals are correct
+	public static String formatName(String input) 
+	{
+		String[] sections = input.split("-");
+		
+		//If No Dashes Return Capitalized First Letter
+		if(sections.length < 2) return input.substring(0, 1).toUpperCase() + input.substring(1);
+		
+		String out = "";
+		
+		//Capitalize all names between dashes and return
+		for(int i = 0; i < sections.length; i++) 
+		{
+			out += sections[i].substring(0, 1).toUpperCase() + sections[i].substring(1);
+			if (i != sections.length - 1) out += "-";
+		}
+		
+		return out;
 	}
 }

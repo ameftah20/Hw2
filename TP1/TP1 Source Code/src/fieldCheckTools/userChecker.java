@@ -201,7 +201,7 @@ public class userChecker {
 		switch (state) {
 		case 0:
 			// State 0 is not a final state, so we can return a very specific error message
-			userNameRecognizerErrorMessage += "A UserName must start with A-Z, a-z\n";
+			userNameRecognizerErrorMessage += "A Username must start with A-Z, a-z\n";
 			return userNameRecognizerErrorMessage;
 
 		case 1:
@@ -211,15 +211,15 @@ public class userChecker {
 
 			if (userNameSize < 3) {
 				// UserName is too small
-				userNameRecognizerErrorMessage += "A UserName must have at least 4 characters.\n";
+				userNameRecognizerErrorMessage += "A Username must have at least 4 characters.\n";
 				return userNameRecognizerErrorMessage;
 			} else if (userNameSize > 20) {
 				// UserName is too long
-				userNameRecognizerErrorMessage += "A UserName must have no more than 16 characters.\n";
+				userNameRecognizerErrorMessage += "A Username must have no more than 16 characters.\n";
 				return userNameRecognizerErrorMessage;
 			} else if (currentCharNdx < input.length()) {
 				// There are characters remaining in the input, so the input is not valid
-				userNameRecognizerErrorMessage += "A UserName character may only contain the characters A-Z, a-z, 0-9.\n";
+				userNameRecognizerErrorMessage += "A Username character may only contain the characters A-Z, a-z, 0-9.\n";
 				return userNameRecognizerErrorMessage;
 			} else {
 				// UserName is valid
@@ -230,7 +230,7 @@ public class userChecker {
 
 		case 2:
 			// State 2 is not a final state, so we can return a very specific error message
-			userNameRecognizerErrorMessage += "A UserName character after a special char must be A-Z, a-z, 0-9.\n";
+			userNameRecognizerErrorMessage += "A Username character after a special char must be A-Z, a-z, 0-9.\n";
 			return userNameRecognizerErrorMessage;
 
 		default:

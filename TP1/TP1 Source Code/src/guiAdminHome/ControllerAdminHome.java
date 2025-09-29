@@ -62,7 +62,7 @@ public class ControllerAdminHome {
 	 */
 	protected static void performInvitation() {
 		// Verify that the email address is valid - If not alert the user and return
-		String emailAddress = ViewAdminHome.text_InvitationEmailAddress.getText();
+		String emailAddress = ViewAdminHome.text_InvitationEmailAddress.getText().toLowerCase();
 		if (invalidEmailAddress(emailAddress)) {
 			return;
 		}

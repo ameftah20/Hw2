@@ -70,7 +70,7 @@ public class ViewFirstAdmin {
 	private static Button button_AdminSetup = new Button("Setup Admin Account");
 
 	// This alert is used should the user enter two passwords that do not match required specifications
-	protected static Alert alertUsernamePasswordError = new Alert(AlertType.INFORMATION);
+	protected static Alert alertUsernamePasswordError = new Alert(AlertType.ERROR);
 
 	// This button allow the user to abort creating the first admin account and
 	// terminate
