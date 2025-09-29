@@ -21,7 +21,108 @@ public class ControllerNewAccount {
 
 	// Reference for the in-memory database so this package has access
 	private static Database theDatabase = applicationMain.FoundationsMain.database;
+	private static String username = "";
+	private static String password1 = "";
+	private static String password2 = "";
+	private static String[] errorMessages = {"",""};
+	
+	
+	
+	
+	/**********
+	 * <p>
+	 * Method: setUsername()
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: This method is called when the user adds text to the username
+	 * field in the View. A private local copy of what was last entered is kept
+	 * here. It will also update error messages to assist the user.
+	 * </p>
+	 * 
+	 */
+	protected static void setUsername() {
+		username = ViewNewAccount.text_Username.getText();
+		
+		String errMsg = userChecker.checkForValidUserName(username);
+		
+		errorMessages[0] = (errMsg != "") ? "Username:\n"+ errMsg : "";
+				
+		String spacing = (errorMessages[0] != "") ? "\n" : "";
+		
+		ViewNewAccount.label_Invalid_Input.setText(errorMessages[0] + spacing + errorMessages[1]);
+	}
 
+	/**********
+	 * <p>
+	 * Method: setPassword1()
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: This method is called when the user adds text to the password 1
+	 * field in the View. A private local copy of what was last entered is kept
+	 * here. It will also update error messages to assist the user.
+	 * </p>
+	 * 
+	 */
+	protected static void setPassword1() {
+		password1 = ViewNewAccount.text_Password1.getText();
+		
+		//Check the input
+		String errorMessage = passChecker.evaluatePassword(password1);
+		
+		errorMessages[1] = "";
+		
+		//If they do not match add to the helper message
+		if(!password1.equals(password2)) 
+		{
+			//If it already has a password error replace it and keep user name error message
+			errorMessages[1] = "Password:\nPasswords Do Not Match";
+		} else if (errorMessage != "") 
+		{
+			errorMessages[1] = "Password:\n"+ errorMessage;
+		}
+		
+		String spacing = (errorMessages[0] != "") ? "\n" : "";
+		
+		ViewNewAccount.label_Invalid_Input.setText(errorMessages[0] + spacing + errorMessages[1]);
+	}
+
+	/**********
+	 * <p>
+	 * Method: setPassword2()
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: This method is called when the user adds text to the password 2
+	 * field in the View. A private local copy of what was last entered is kept
+	 * here. It will also update error messages to assist the user.
+	 * </p>
+	 * 
+	 */
+	protected static void setPassword2() {
+		password2 = ViewNewAccount.text_Password2.getText();
+		
+		//Check the input
+		String errorMessage = passChecker.evaluatePassword(password2);
+		
+		errorMessages[1] = "";
+		
+		//If they do not match add to the helper message
+		if(!password1.equals(password2)) 
+		{
+			//If it already has a password error replace it and keep user name error message
+			errorMessages[1] = "Password:\nPasswords Do Not Match";
+		} else if (errorMessage != "") 
+		{
+			errorMessages[1] = "Password:\n"+ errorMessage;
+		}
+		
+		String spacing = (errorMessages[0] != "") ? "\n" : "";
+		
+		ViewNewAccount.label_Invalid_Input.setText(errorMessages[0] + spacing + errorMessages[1]);
+	}
+	
 	/**********
 	 * <p>
 	 * Method: public doCreateUser()

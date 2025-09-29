@@ -9,6 +9,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import database.Database;
@@ -56,6 +57,7 @@ public class ViewNewAccount {
 	private static Label label_ApplicationTitle = new Label("Foundation Application Account Setup Page");
 	protected static Label label_NewUserCreation = new Label(" User Account Creation.");
 	protected static Label label_NewUserLine = new Label("Please enter a username and a password.");
+	protected static Label label_Invalid_Input = new Label("");
 	protected static TextField text_Username = new TextField();
 	protected static PasswordField text_Password1 = new PasswordField();
 	protected static PasswordField text_Password2 = new PasswordField();
@@ -63,10 +65,10 @@ public class ViewNewAccount {
 	protected static TextField text_Invitation = new TextField();
 
 	// This alert is used should the invitation code be invalid
-	protected static Alert alertInvitationCodeIsInvalid = new Alert(AlertType.INFORMATION);
+	protected static Alert alertInvitationCodeIsInvalid = new Alert(AlertType.ERROR);
 
 	// This alert is used should the user enter two passwords that do not match
-	protected static Alert alertUsernamePasswordError = new Alert(AlertType.INFORMATION);
+	protected static Alert alertUsernamePasswordError = new Alert(AlertType.ERROR);
 
 	protected static Button button_Quit = new Button("Quit");
 
@@ -149,7 +151,7 @@ public class ViewNewAccount {
 		// Place all of the established GUI elements into the pane
 		theRootPane.getChildren().clear();
 		theRootPane.getChildren().addAll(label_NewUserCreation, label_NewUserLine, text_Username, text_Password1,
-				text_Password2, button_UserSetup, button_Quit);
+				text_Password2,label_Invalid_Input, button_UserSetup, button_Quit);
 
 		// Set the title for the window, display the page, and wait for the Admin to do
 		// something
@@ -190,15 +192,24 @@ public class ViewNewAccount {
 		// Establish the text input operand asking for a username
 		setupTextUI(text_Username, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 160, true);
 		text_Username.setPromptText("Enter the Username");
+		text_Username.textProperty().addListener((observable, oldValue, newValue) -> {
+			ControllerNewAccount.setUsername();
+		});
 
 		// Establish the text input operand field for the password
 		setupTextUI(text_Password1, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 210, true);
 		text_Password1.setPromptText("Enter the Password");
-
+		text_Password1.textProperty().addListener((observable, oldValue, newValue) -> {
+			ControllerNewAccount.setPassword1();
+		});
+		
 		// Establish the text input operand field to confirm the password
 		setupTextUI(text_Password2, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 260, true);
 		text_Password2.setPromptText("Enter the Password Again");
-
+		text_Password2.textProperty().addListener((observable, oldValue, newValue) -> {
+			ControllerNewAccount.setPassword2();
+		});
+		
 		// If the invitation code is wrong, this alert dialog will tell the user
 		alertInvitationCodeIsInvalid.setTitle("Invalid Invitation Code");
 		alertInvitationCodeIsInvalid.setHeaderText("The invitation code is not valid.");
@@ -209,6 +220,9 @@ public class ViewNewAccount {
 		alertUsernamePasswordError.setHeaderText("The two passwords must be identical.");
 		alertUsernamePasswordError.setContentText("Please Make Corrections and Try Again!");
 
+		setupLabelUI(label_Invalid_Input, "Arial", 18, width, Pos.CENTER, 0, 300);
+		label_Invalid_Input.setTextFill(Color.RED);
+		
 		// Set up the account creation and login
 		setupButtonUI(button_UserSetup, "Dialog", 18, 200, Pos.CENTER, 475, 210);
 		button_UserSetup.setOnAction((event) -> {
