@@ -12,6 +12,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import entityClasses.User;
+import fieldCheckTools.emailChecker;
+import javafx.scene.control.Alert;
 
 /*******
  * <p>
@@ -123,6 +125,9 @@ public class ViewUserUpdate {
 	public static Scene theUserUpdateScene = null; // The Scene each invocation populates
 
 	private static Optional<String> result; // The result from a pop-up dialog
+	
+	//Alert panel for when the user inputs incorrect information
+	private static Alert invalidInputAlert = new Alert(Alert.AlertType.ERROR);
 
 	/*-********************************************************************************************
 	
@@ -313,7 +318,13 @@ public class ViewUserUpdate {
 		setupButtonUI(button_UpdateMiddleName, "Dialog", 18, 275, Pos.CENTER, 500, 243);
 		button_UpdateMiddleName.setOnAction((event) -> {
 			result = dialogUpdateMiddleName.showAndWait();
-			result.ifPresent(name -> theDatabase.updateMiddleName(theUser.getUserName(), result.get()));
+			result.ifPresent(name -> 
+			{
+				String errMessage = nameChecker.evaluateName(name);
+				
+				
+				theDatabase.updateMiddleName(theUser.getUserName(), result.get());
+			});
 			theDatabase.getUserAccountDetails(theUser.getUserName());
 			String newName = theDatabase.getCurrentMiddleName();
 			theUser.setMiddleName(newName);
@@ -361,10 +372,27 @@ public class ViewUserUpdate {
 		setupButtonUI(button_UpdateEmailAddress, "Dialog", 18, 275, Pos.CENTER, 500, 393);
 		button_UpdateEmailAddress.setOnAction((event) -> {
 			result = dialogUpdateEmailAddresss.showAndWait();
-			result.ifPresent(name -> theDatabase.updateEmailAddress(theUser.getUserName(), result.get()));
+			result.ifPresent(newEmail -> 
+			{
+				//Evaluate the validity of the email and return an error message
+				String errMessage = emailChecker.evaluateEmail(newEmail);
+				
+				//If there is no issues update the email address
+				if(errMessage == "")
+					theDatabase.updateEmailAddress(theUser.getUserName(), result.get());
+				else 
+				{
+					//Set up the Alert Box
+					invalidInputAlert.setTitle("Operation Incomplete");
+					invalidInputAlert.setHeaderText("Invalid Email Address!");
+					invalidInputAlert.setContentText("Must be in the form example@email.com\nCorrect the email address and try again");
+					invalidInputAlert.showAndWait();
+				}
+			} );
 			theDatabase.getUserAccountDetails(theUser.getUserName());
 			String newEmail = theDatabase.getCurrentEmailAddress();
 			theUser.setEmailAddress(newEmail);
+			
 			if (newEmail == null || newEmail.length() < 1)
 				label_CurrentEmailAddress.setText("<none>");
 			else

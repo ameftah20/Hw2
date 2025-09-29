@@ -1,6 +1,7 @@
 package guiAdminHome;
 
 import database.Database;
+import fieldCheckTools.emailChecker;
 
 /*******
  * <p>
@@ -200,8 +201,14 @@ public class ControllerAdminHome {
 	 * @param emailAddress This String holds what is expected to be an email address
 	 */
 	protected static boolean invalidEmailAddress(String emailAddress) {
-		if (emailAddress.length() == 0) {
-			ViewAdminHome.alertEmailError.setContentText("Correct the email address and try again.");
+		
+		String errMessage = emailChecker.evaluateEmail(emailAddress); //User Email Checker to Determine if email is valid
+		
+		//If there is an error message to be displayed return false
+		if (errMessage != "") {
+			ViewAdminHome.alertEmailError.setTitle("Operation Incomplete");
+			ViewAdminHome.alertEmailError.setHeaderText("Invalid Email Address");
+			ViewAdminHome.alertEmailError.setContentText("Must be in the form example@email.com\nCorrect the email address and try again");
 			ViewAdminHome.alertEmailError.showAndWait();
 			return true;
 		}

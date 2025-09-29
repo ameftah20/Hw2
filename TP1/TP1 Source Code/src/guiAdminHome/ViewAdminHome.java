@@ -101,7 +101,7 @@ public class ViewAdminHome {
 	protected static ComboBox<String> combobox_SelectRole = new ComboBox<String>();
 	protected static String[] roles = { "Admin", "Role1", "Role2" };
 	protected static Button button_SendInvitation = new Button("Send Invitation");
-	protected static Alert alertEmailError = new Alert(AlertType.INFORMATION);
+	protected static Alert alertEmailError = new Alert(AlertType.ERROR);
 	protected static Alert alertEmailSent = new Alert(AlertType.INFORMATION);
 
 	// This is a separator and it is used to partition the GUI for various tasks
