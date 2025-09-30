@@ -548,6 +548,40 @@ public class Database {
 		}
 		return "";
 	}
+	
+	
+	
+	/*******
+	 * <p>
+	 * Method: String getRole (String username)
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: Get the role associated with a username.
+	 * </p>
+	 * 
+	 * @param username is the username to query
+	 * 
+	 * @return the role of that user
+	 * 
+	 */
+	//For a given username return the role associated with that user
+	//TO DO: This is not fully implemented the database stores role values as booleans so we will need to either
+	//change the way they store it (HARD idk sql) or find a way to convert the booleans to a returned string/enum
+	public String getRole(String username) 
+	{
+		String query = "SELECT role FROM userDB WHERE username = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return rs.getString("role");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
 
 	/*******
 	 * <p>

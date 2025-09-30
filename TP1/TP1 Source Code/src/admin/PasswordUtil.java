@@ -2,10 +2,12 @@ package admin;
 
 import java.security.SecureRandom;
 
+
+//Utility to generate new passwords
 public class PasswordUtil {
-    private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
-    private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final String DIGIT = "0123456789";
+    private static final String LOWER = "abcdefghijklmnopqrstuvwxyz"; //String of all lower case letters
+    private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; //String of all upper case letters
+    private static final String DIGIT = "0123456789"; //String of numerical digits
     private static final String ALL   = LOWER + UPPER + DIGIT; // add specials later if desired
     private static final SecureRandom RNG = new SecureRandom();
 
