@@ -82,6 +82,8 @@ public class passChecker {
 			} else if (currentChar >= '0' && currentChar <= '9') {
 				System.out.println("Digit found");
 				foundNumericDigit = true;
+			} else if("!#$%&'*+-/=?^_`{|}~.@".contains(currentChar + "")) {
+				System.out.println("Special Char Found");
 			} else {
 				passwordIndexofError = currentCharNdx;
 				return "An invalid character has been found!";

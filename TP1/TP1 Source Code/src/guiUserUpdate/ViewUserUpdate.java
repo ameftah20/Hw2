@@ -2,6 +2,8 @@ package guiUserUpdate;
 
 import java.util.Optional;
 
+import customGuiClasses.TwoInputDialog;
+import customGuiClasses.TwoInputDialog.TwoStringResults;
 import database.Database;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,6 +16,7 @@ import javafx.stage.Stage;
 import entityClasses.User;
 import fieldCheckTools.emailChecker;
 import fieldCheckTools.nameChecker;
+import fieldCheckTools.passChecker;
 import javafx.scene.control.Alert;
 
 /*******
@@ -130,10 +133,17 @@ public class ViewUserUpdate {
 	//Alert panel for when the user inputs incorrect information
 	private static Alert invalidInputAlert = new Alert(Alert.AlertType.ERROR);
 	
+	//Alert panel for when the password changes
+	private static Alert passwordChangedAlert = new Alert(Alert.AlertType.INFORMATION);
+	
 	
 	//String Variables to adjust the name error texts
 	private static String nameErrorTitle = "Operation Incomplete";
 	private static String nameErrorHeader = "Invalid Name Input";
+	
+	//Two Input Dialog and resulting output
+	private static TwoInputDialog passwordChange = new TwoInputDialog("Password Change", "Change Password?", "New Password", "Confirm New Password");
+	private static Optional<TwoStringResults> result2;
 
 	/*-********************************************************************************************
 	
@@ -172,6 +182,9 @@ public class ViewUserUpdate {
 		theUser = user;
 		theStage = ps;
 
+		//Clear the input fields of the password changer
+		passwordChange.clearInputFields();
+		
 		// If not yet established, populate the static aspects of the GUI by creating
 		// the
 		// singleton instance of this class
@@ -281,6 +294,10 @@ public class ViewUserUpdate {
 		dialogUpdateEmailAddresss.setTitle("Update Email Address");
 		dialogUpdateEmailAddresss.setHeaderText("Update your Email Address");
 
+		//Set up the password changed confirmation window
+		passwordChangedAlert.setTitle("Password Changed");
+		passwordChangedAlert.setHeaderText("Password Has Been Successfully Changed!");
+		
 		// Label theScene with the name of the startup screen, centered at the top of
 		// the pane
 		setupLabelUI(label_ApplicationTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
@@ -292,7 +309,7 @@ public class ViewUserUpdate {
 		// attributes.
 		// If the attributes is null or empty, display "<none>".
 
-		// USername
+		// Username
 		setupLabelUI(label_Username, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 100);
 		setupLabelUI(label_CurrentUsername, "Arial", 18, 260, Pos.BASELINE_LEFT, 200, 100);
 		setupButtonUI(button_UpdateUsername, "Dialog", 18, 275, Pos.CENTER, 500, 93);
@@ -301,7 +318,55 @@ public class ViewUserUpdate {
 		setupLabelUI(label_Password, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 150);
 		setupLabelUI(label_CurrentPassword, "Arial", 18, 260, Pos.BASELINE_LEFT, 200, 150);
 		setupButtonUI(button_UpdatePassword, "Dialog", 18, 275, Pos.CENTER, 500, 143);
-
+		setupButtonUI(button_UpdateFirstName, "Dialog", 18, 275, Pos.CENTER, 500, 193);
+		button_UpdatePassword.setOnAction((event) -> {
+			
+			//Show 2 Input Dialog
+			result2 = passwordChange.showAndWait();
+			result2.ifPresent(inputs -> {
+				
+				//Get the output of the dialog
+				String pInput1 = inputs.getText1();
+				String pInput2 = inputs.getText2();
+				
+				//Error Message String
+				String errMessage;
+				
+				if (label_CurrentPassword.getText().equals(pInput1)) 
+				{
+					errMessage = "Password Already in Use";
+				}
+				//If the passwords do not match
+				else if (!pInput1.equals(pInput2)) 
+				{
+					errMessage = "Passwords Do Not Match";
+				} else 
+				{
+					errMessage = passChecker.evaluatePassword(pInput1);   //Use Password Checker to validate new password
+				}
+				
+				//If there is no error update the password
+				if (errMessage == "") 
+				{
+					theDatabase.updatePassword(theUser.getUserName(), pInput1);
+					passwordChange.clearInputFields();
+					passwordChangedAlert.show();
+				} else 
+				{
+					//Setup and show error dialog
+					invalidInputAlert.setTitle("Operation Incomplete");
+					invalidInputAlert.setHeaderText("Invalid Password");
+					invalidInputAlert.setContentText("Reason: " + errMessage + "\n\nPlease Make Changes and Try Again");
+					invalidInputAlert.showAndWait();
+				}
+				
+			});
+			
+			//Set the label with the new password
+			String newPassword = theDatabase.getCurrentPassword();
+			label_CurrentPassword.setText(newPassword);
+		});
+		
 		// First Name
 		setupLabelUI(label_FirstName, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 200);
 		setupLabelUI(label_CurrentFirstName, "Arial", 18, 260, Pos.BASELINE_LEFT, 200, 200);
