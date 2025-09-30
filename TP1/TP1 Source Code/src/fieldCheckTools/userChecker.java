@@ -1,5 +1,23 @@
 package fieldCheckTools;
 
+/*******
+ * <p>
+ * Title: userChecker Class
+ * </p>
+ * 
+ * <p>
+ * Description: This class is part of the field checker package and allows for consistent
+ * checking of user name fields throughout the application. When calling the main function it will
+ * return an error message if the password is invalid.
+ * </p>
+ * 
+ * 
+ * @author Lucas Conklin, Lynn Robert Carter
+ * 
+ * @version 1.00 Function adapted from example given by Professor Carter to fit it's use case in the foundations code
+ * 
+ */
+
 public class userChecker {
 	
 	public static String userNameRecognizerErrorMessage = ""; // The error message text
@@ -32,7 +50,7 @@ public class userChecker {
 		// Check to ensure that there is input to process
 		if (input.length() <= 0) {
 			userNameRecognizerIndexofError = 0; // Error at first character;
-			return "The input is empty";
+			return "The user input is empty!\n";
 		}
 
 		// The local variables used to perform the Finite State Machine simulation
@@ -75,7 +93,7 @@ public class userChecker {
 
 				// A-Z, a-z, 0-9 -> State 1
 				if ((currentChar >= 'A' && currentChar <= 'Z') || // Check for A-Z
-						(currentChar >= 'a' && currentChar <= 'z')) { // Check for a-z //Changed
+						(currentChar >= 'a' && currentChar <= 'z')) { // Check for a-z
 					nextState = 1;
 
 					// Count the character
@@ -106,10 +124,9 @@ public class userChecker {
 					userNameSize++;
 				}
 				// . -> State 2
-				else if (currentChar == '.' || currentChar == '-' || currentChar == '_') { // Check to see if the
+				else if (currentChar == '_') { // Check to see if the
 																							// current char is one of
 																							// the special characters
-																							// (Changed for task)
 					nextState = 2;
 
 					// Count the .,-, or _
@@ -184,7 +201,7 @@ public class userChecker {
 		switch (state) {
 		case 0:
 			// State 0 is not a final state, so we can return a very specific error message
-			userNameRecognizerErrorMessage += "A UserName must start with A-Z, a-z\n"; // Changed for assignment
+			userNameRecognizerErrorMessage += "A Username must start with A-Z, a-z\n";
 			return userNameRecognizerErrorMessage;
 
 		case 1:
@@ -192,17 +209,17 @@ public class userChecker {
 			// we
 			// we must ensure the whole string has been consumed.
 
-			if (userNameSize < 4) {
+			if (userNameSize < 3) {
 				// UserName is too small
-				userNameRecognizerErrorMessage += "A UserName must have at least 4 characters.\n";
+				userNameRecognizerErrorMessage += "A Username must have at least 4 characters.\n";
 				return userNameRecognizerErrorMessage;
-			} else if (userNameSize > 16) {
+			} else if (userNameSize > 20) {
 				// UserName is too long
-				userNameRecognizerErrorMessage += "A UserName must have no more than 16 characters.\n";
+				userNameRecognizerErrorMessage += "A Username must have no more than 16 characters.\n";
 				return userNameRecognizerErrorMessage;
 			} else if (currentCharNdx < input.length()) {
 				// There are characters remaining in the input, so the input is not valid
-				userNameRecognizerErrorMessage += "A UserName character may only contain the characters A-Z, a-z, 0-9.\n";
+				userNameRecognizerErrorMessage += "A Username character may only contain the characters A-Z, a-z, 0-9.\n";
 				return userNameRecognizerErrorMessage;
 			} else {
 				// UserName is valid
@@ -213,7 +230,7 @@ public class userChecker {
 
 		case 2:
 			// State 2 is not a final state, so we can return a very specific error message
-			userNameRecognizerErrorMessage += "A UserName character after a special char must be A-Z, a-z, 0-9.\n";
+			userNameRecognizerErrorMessage += "A Username character after a special char must be A-Z, a-z, 0-9.\n";
 			return userNameRecognizerErrorMessage;
 
 		default:

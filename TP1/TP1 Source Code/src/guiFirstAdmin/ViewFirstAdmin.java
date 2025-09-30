@@ -8,6 +8,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
@@ -62,14 +63,14 @@ public class ViewFirstAdmin {
 	private static Label label_TitleLine2 = new Label(
 			"Enter the Admin's Username, the Password twice, and then click on " + "Setup Admin Account.");
 
-	protected static Label label_PasswordsDoNotMatch = new Label();
+	protected static Label label_Invalid_Input = new Label();
 	protected static TextField text_AdminUsername = new TextField();
 	protected static PasswordField text_AdminPassword1 = new PasswordField();
 	protected static PasswordField text_AdminPassword2 = new PasswordField();
 	private static Button button_AdminSetup = new Button("Setup Admin Account");
 
-	// This alert is used should the user enter two passwords that do not match
-	protected static Alert alertUsernamePasswordError = new Alert(AlertType.INFORMATION);
+	// This alert is used should the user enter two passwords that do not match required specifications
+	protected static Alert alertUsernamePasswordError = new Alert(AlertType.ERROR);
 
 	// This button allow the user to abort creating the first admin account and
 	// terminate
@@ -202,8 +203,9 @@ public class ViewFirstAdmin {
 			ControllerFirstAdmin.doSetupAdmin(theStage, 1);
 		});
 
-		// Label to display the Passwords do not match error message
-		setupLabelUI(label_PasswordsDoNotMatch, "Arial", 18, width, Pos.CENTER, 0, 300);
+		// Label to display the Invalid Input error message
+		setupLabelUI(label_Invalid_Input, "Arial", 18, width, Pos.CENTER, 0, 300);
+		label_Invalid_Input.setTextFill(Color.RED);
 
 		setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 520);
 		button_Quit.setOnAction((event) -> {
@@ -212,7 +214,7 @@ public class ViewFirstAdmin {
 
 		// Place all of the just-initialized GUI elements into the pane
 		theRootPane.getChildren().addAll(label_ApplicationTitle, label_TitleLine1, label_TitleLine2, text_AdminUsername,
-				text_AdminPassword1, text_AdminPassword2, button_AdminSetup, label_PasswordsDoNotMatch, button_Quit);
+				text_AdminPassword1, text_AdminPassword2, button_AdminSetup, label_Invalid_Input, button_Quit);
 	}
 
 	/*-********************************************************************************************

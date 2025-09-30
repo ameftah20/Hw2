@@ -71,8 +71,6 @@ import javafx.scene.control.Alert.AlertType;
  */
 
 public class FoundationsMain extends Application {
-//hello world this is ahmd
-//hello world this is ahmd
 	/*-*******************************************************************************************
 	
 	Attributes

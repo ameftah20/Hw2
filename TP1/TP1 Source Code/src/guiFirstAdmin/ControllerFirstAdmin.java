@@ -22,6 +22,7 @@ public class ControllerFirstAdmin {
 	private static String adminPassword1 = "";
 	private static String adminPassword2 = "";
 	protected static Database theDatabase = applicationMain.FoundationsMain.database;
+	private static String[] errorMessages = {"",""};
 
 	/*-********************************************************************************************
 	
@@ -43,6 +44,14 @@ public class ControllerFirstAdmin {
 	 */
 	protected static void setAdminUsername() {
 		adminUsername = ViewFirstAdmin.text_AdminUsername.getText();
+		
+		String errMsg = userChecker.checkForValidUserName(adminUsername);
+		
+		errorMessages[0] = (errMsg != "") ? "Username:\n"+ errMsg : "";
+				
+		String spacing = (errorMessages[0] != "") ? "\n" : "";
+		
+		ViewFirstAdmin.label_Invalid_Input.setText(errorMessages[0] + spacing + errorMessages[1]);
 	}
 
 	/**********
@@ -59,7 +68,25 @@ public class ControllerFirstAdmin {
 	 */
 	protected static void setAdminPassword1() {
 		adminPassword1 = ViewFirstAdmin.text_AdminPassword1.getText();
-		ViewFirstAdmin.label_PasswordsDoNotMatch.setText("");
+		
+		//Check the input
+		String errorMessage = passChecker.evaluatePassword(adminPassword1);
+		
+		errorMessages[1] = "";
+		
+		//If they do not match add to the helper message
+		if(!adminPassword1.equals(adminPassword2)) 
+		{
+			//If it already has a password error replace it and keep user name error message
+			errorMessages[1] = "Password:\nPasswords Do Not Match";
+		} else if (errorMessage != "") 
+		{
+			errorMessages[1] = "Password:\n"+ errorMessage;
+		}
+		
+		String spacing = (errorMessages[0] != "") ? "\n" : "";
+		
+		ViewFirstAdmin.label_Invalid_Input.setText(errorMessages[0] + spacing + errorMessages[1]);
 	}
 
 	/**********
@@ -75,8 +102,26 @@ public class ControllerFirstAdmin {
 	 * 
 	 */
 	protected static void setAdminPassword2() {
-		adminPassword2 = ViewFirstAdmin.text_AdminPassword2.getText();
-		ViewFirstAdmin.label_PasswordsDoNotMatch.setText("");
+		adminPassword2 = ViewFirstAdmin.text_AdminPassword1.getText();
+		
+		//Check the input
+		String errorMessage = passChecker.evaluatePassword(adminPassword2);
+		
+		errorMessages[1] = "";
+		
+		//If they do not match add to the helper message
+		if(!adminPassword1.equals(adminPassword2)) 
+		{
+			//If it already has a password error replace it and keep user name error message
+			errorMessages[1] = "Invalid Password:\nPasswords Do Not Match";
+		} else if (errorMessage != "") 
+		{
+			errorMessages[1] = "Password:\n" + errorMessage;
+		}
+		
+		String spacing = (errorMessages[0] != "") ? "\n" : "";
+		
+		ViewFirstAdmin.label_Invalid_Input.setText(errorMessages[0] + spacing + errorMessages[1]);
 	}
 
 	/**********
@@ -132,7 +177,9 @@ public class ControllerFirstAdmin {
 			
 		//If the error message contains an error set the errMsg to the do not match label.
 		} else {
-			ViewFirstAdmin.label_PasswordsDoNotMatch.setText(errMsg);
+			ViewFirstAdmin.alertUsernamePasswordError.setTitle("Operation Incomplete");
+			ViewFirstAdmin.alertUsernamePasswordError.setHeaderText(errMsg);
+			ViewFirstAdmin.alertUsernamePasswordError.showAndWait();
 		}
 	}
 
