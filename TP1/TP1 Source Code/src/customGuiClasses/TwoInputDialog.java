@@ -63,8 +63,4 @@ public class TwoInputDialog extends Application{
 			text2 = t2;
 		}
 	}
-	
-	public static void main(String[] args) {
-	    launch(args);
-	}
 }
