@@ -209,7 +209,7 @@ public class userChecker {
 			// we
 			// we must ensure the whole string has been consumed.
 
-			if (userNameSize < 3) {
+			if (userNameSize < 4) {
 				// UserName is too small
 				userNameRecognizerErrorMessage += "A Username must have at least 4 characters.\n";
 				return userNameRecognizerErrorMessage;
