@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class AdminUsersDialog {
-
+	
+	
     private final AdminService service = new AdminServiceImpl();
     private final TableView<UserSummary> table = new TableView<>();
     private final ComboBox<Role> roleFilter = new ComboBox<>();
