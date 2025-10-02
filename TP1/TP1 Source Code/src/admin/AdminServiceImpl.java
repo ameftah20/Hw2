@@ -21,7 +21,7 @@ public class AdminServiceImpl implements AdminService {
         			username, 
         			(prefFirst == "") ? db.getFirstName(username) : prefFirst, //If the user hasn't set a pref. First name then attempt to use norm first name.
         			db.getRoleByUser(username),
-        			true);
+        			db.getActiveStatus(username));
         	users.put(username, newSummary);
         }
     }
@@ -42,7 +42,8 @@ public class AdminServiceImpl implements AdminService {
         UserSummary u = users.get(userId);
         if (u == null) return false;
         if (!active && isLastActiveAdmin(userId)) return false; // protect last active ADMIN
-        users.put(userId, new UserSummary(u.getUserId(), u.getDisplayName(), u.getRole(), active));
+        users.put(userId, new UserSummary(u.getUserId(), u.getDisplayName(), u.getRole(), active)); //Update List
+        db.updateActiveStatus(u.getUserId(), active); //Update Database
         return true;
     }
 
@@ -51,8 +52,10 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public boolean changeRole(String userId, Role newRole) {
         UserSummary u = users.get(userId);
-        if (u == null) return false;
-        if (u.getRole() == Role.ADMIN && newRole != Role.ADMIN && countActiveAdmins() == 1) return false;
+        Role currRole = u.getRole();
+        if (currRole == Role.ADMIN && newRole != Role.ADMIN && countActiveAdmins() == 1) return false;
+        db.updateUserRole(userId, currRole, "FALSE"); //Remove Current Role
+        db.updateUserRole(userId, newRole, "TRUE"); //Update Role to New One
         users.put(userId, new UserSummary(u.getUserId(), u.getDisplayName(), newRole, u.isActive()));
         return true;
     }
@@ -64,6 +67,7 @@ public class AdminServiceImpl implements AdminService {
         if (!users.containsKey(userId)) return null;   //If the user does not exist return nothing
         String newPass = PasswordUtil.generateStrongTemp(12); //Generate a random strong password
         db.updatePassword(userId, newPass); //Update the users password
+        db.updateUserPasswordReset(userId, true);
         return newPass;    //Return the new password 
     }
 

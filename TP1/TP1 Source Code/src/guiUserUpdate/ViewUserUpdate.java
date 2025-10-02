@@ -525,6 +525,12 @@ public class ViewUserUpdate {
 		// Set up the button to proceed to this user's home page
 		setupButtonUI(button_ProceedToUserHomePage, "Dialog", 18, 300, Pos.CENTER, width / 2 - 150, 450);
 		button_ProceedToUserHomePage.setOnAction((event) -> {
+			passwordChange.clearInputFields();
+			dialogUpdateFirstName.getEditor().clear();
+			dialogUpdateMiddleName.getEditor().clear();
+			dialogUpdateLastName.getEditor().clear();
+			dialogUpdatePreferredFirstName.getEditor().clear();
+			dialogUpdateEmailAddresss.getEditor().clear();
 			ControllerUserUpdate.goToUserHomePage(theStage, theUser);
 		});
 

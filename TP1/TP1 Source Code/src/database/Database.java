@@ -128,7 +128,7 @@ public class Database {
 				+ "userName VARCHAR(255) UNIQUE, " + "password VARCHAR(255), " + "firstName VARCHAR(255), "
 				+ "middleName VARCHAR(255), " + "lastName VARCHAR (255), " + "preferredFirstName VARCHAR(255), "
 				+ "emailAddress VARCHAR(255), " + "adminRole BOOL DEFAULT FALSE, " + "newRole1 BOOL DEFAULT FALSE, "
-				+ "newRole2 BOOL DEFAULT FALSE)";
+				+ "newRole2 BOOL DEFAULT FALSE," + "mustResetPass BOOL DEFAULT FALSE," + "accountActive BOOL DEFAULT TRUE)";
 		statement.execute(userTable);
 
 		// Create the invitation codes table
@@ -581,7 +581,119 @@ public class Database {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return Role.NONE;
+	}
+	
+	/*******
+	 * <p>
+	 * Method: boolean getActiveStatus(String username)
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: Get the account's activity status
+	 * </p>
+	 * 
+	 * @param username is the username to query
+	 * 
+	 * @return the active status of that user
+	 * 
+	 */
+	//For a given username return the status of the account
+	public boolean getActiveStatus(String username) 
+	{
+		String query = "SELECT accountActive FROM userDB WHERE username = ?";      //Query All the Roles
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return rs.getBoolean("accountActive");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/*******
+	 * <p>
+	 * Method: void updateActiveStatus(String username, boolean active)
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: Sets the user's active status
+	 * </p>
+	 * 
+	 * @param username is the username of the user
+	 * 
+	 * @param active is the new status of the user
+	 * 
+	 */
+	// update the active status
+	public void updateActiveStatus(String username, boolean active) {
+		String query = "UPDATE userDB SET accountActive = ? WHERE username = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, (active) ? "TRUE" : "FALSE");
+			pstmt.setString(2, username);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*******
+	 * <p>
+	 * Method: boolean doesUserNeedPasswordReset(String username) 
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: Determine if the user needs to reset their password
+	 * </p>
+	 * 
+	 * @param username is the username to query
+	 * 
+	 * @return the role of that user
+	 * 
+	 */
+	//For a given username return the status of the account
+	public boolean doesUserNeedPasswordReset(String username) 
+	{
+		String query = "SELECT mustResetPass FROM userDB WHERE username = ?";      //Query All the Roles
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return rs.getBoolean("mustResetPass");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/*******
+	 * <p>
+	 * Method: void updateUserPasswordReset(String username, boolean active)
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: Sets the status of the users need to reset their password
+	 * </p>
+	 * 
+	 * @param username is the username of the user
+	 * 
+	 * @param active is the new status of forced password reset
+	 * 
+	 */
+	// update the active status
+	public void updateUserPasswordReset(String username, boolean active) {
+		String query = "UPDATE userDB SET mustResetPass = ? WHERE username = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, (active) ? "TRUE" : "FALSE");
+			pstmt.setString(2, username);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/*******
