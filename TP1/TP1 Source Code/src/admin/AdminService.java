@@ -15,4 +15,5 @@ public interface AdminService {
 
     // ADM-04
     String resetPassword(String userId);                // return temp password/token
+    
 }

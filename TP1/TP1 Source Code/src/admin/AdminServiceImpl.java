@@ -16,11 +16,12 @@ public class AdminServiceImpl implements AdminService {
         for (int i = 0; i < userNames.size(); i ++) 
         {
         	String username = userNames.get(i);
+        	String prefFirst = db.getPreferredFirstName(username); //Get Pref First Name
         	UserSummary newSummary = new UserSummary(
         			username, 
-        			db.getPreferredFirstName(username),
-        			Role.ADMIN,  //TO DO: The database stores roles strangely find a way to implement this
-        			true);
+        			(prefFirst == "") ? db.getFirstName(username) : prefFirst, //If the user hasn't set a pref. First name then attempt to use norm first name.
+        			db.getRoleByUser(username),
+        			db.getActiveStatus(username));
         	users.put(username, newSummary);
         }
     }
@@ -41,7 +42,8 @@ public class AdminServiceImpl implements AdminService {
         UserSummary u = users.get(userId);
         if (u == null) return false;
         if (!active && isLastActiveAdmin(userId)) return false; // protect last active ADMIN
-        users.put(userId, new UserSummary(u.getUserId(), u.getDisplayName(), u.getRole(), active));
+        users.put(userId, new UserSummary(u.getUserId(), u.getDisplayName(), u.getRole(), active)); //Update List
+        db.updateActiveStatus(u.getUserId(), active); //Update Database
         return true;
     }
 
@@ -50,11 +52,11 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public boolean changeRole(String userId, Role newRole) {
         UserSummary u = users.get(userId);
-        if (u == null) return false;
-        if (u.getRole() == Role.ADMIN && newRole != Role.ADMIN && countActiveAdmins() == 1) return false;
+        Role currRole = u.getRole();
+        if (currRole == Role.ADMIN && newRole != Role.ADMIN && countActiveAdmins() == 1) return false;
+        db.updateUserRole(userId, currRole, "FALSE"); //Remove Current Role
+        db.updateUserRole(userId, newRole, "TRUE"); //Update Role to New One
         users.put(userId, new UserSummary(u.getUserId(), u.getDisplayName(), newRole, u.isActive()));
-        
-        //TO DO: When you change a users role it should update it in the db
         return true;
     }
 
@@ -62,25 +64,14 @@ public class AdminServiceImpl implements AdminService {
     //Resets a password and generates a new one
     @Override
     public String resetPassword(String userId) {
-        if (!users.containsKey(userId)) return null;
-        return PasswordUtil.generateStrongTemp(12);
-        
-        //TO DO: When you update a password it should also update it in the database
+        if (!users.containsKey(userId)) return null;   //If the user does not exist return nothing
+        String newPass = PasswordUtil.generateStrongTemp(12); //Generate a random strong password
+        db.updatePassword(userId, newPass); //Update the users password
+        db.updateUserPasswordReset(userId, true);
+        return newPass;    //Return the new password 
     }
 
     /* Helpers */
-
-    //Test function to populate the list
-    private void seedData() {
-        add(new UserSummary("admin@demo", "Admin User", Role.ADMIN, true));
-        add(new UserSummary("alex@demo",  "Alex",       Role.USER,  true));
-        add(new UserSummary("ta@demo",    "TA Person",  Role.TA,    false));
-    }
-
-    //Adds a user given the user summary
-    private void add(UserSummary u) {
-        users.put(u.getUserId(), u);
-    }
 
     //Counts the currently active admins
     private int countActiveAdmins() {

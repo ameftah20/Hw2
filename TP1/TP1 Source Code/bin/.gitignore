@@ -1,4 +1,7 @@
-/customGuiClasses/
-/guiUserUpdate/
+/module-info.class
+/admin/
 /database/
-/fieldCheckTools/
+/guiAddRemoveRoles/
+/guiAdminHome/
+/guiUserLogin/
+/guiUserUpdate/

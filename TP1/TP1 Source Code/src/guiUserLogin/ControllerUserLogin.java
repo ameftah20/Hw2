@@ -2,7 +2,15 @@ package guiUserLogin;
 
 import database.Database;
 import entityClasses.User;
+import fieldCheckTools.passChecker;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
+
+import java.util.Optional;
+
+import customGuiClasses.TwoInputDialog;
+import customGuiClasses.TwoInputDialog.TwoStringResults;
 
 public class ControllerUserLogin {
 
@@ -41,11 +49,14 @@ public class ControllerUserLogin {
 		String password = ViewUserLogin.text_Password.getText();
 		boolean loginResult = false;
 
+		ViewUserLogin.alertUsernamePasswordError.setTitle("Error");
+		
 		// Fetch the user and verify the username
 		if (theDatabase.getUserAccountDetails(username) == false) {
 			// Don't provide too much information. Don't say the username is invalid or the
 			// password is invalid. Just say the pair is invalid.
-			ViewUserLogin.alertUsernamePasswordError.setContentText("Incorrect username/password. Try again!");
+			ViewUserLogin.alertUsernamePasswordError.setHeaderText("Incorrect username/password");
+			ViewUserLogin.alertUsernamePasswordError.setContentText("Please Make Corrections and Try again!");
 			ViewUserLogin.alertUsernamePasswordError.showAndWait();
 			return;
 		}
@@ -55,11 +66,87 @@ public class ControllerUserLogin {
 		String actualPassword = theDatabase.getCurrentPassword();
 
 		if (password.compareTo(actualPassword) != 0) {
-			ViewUserLogin.alertUsernamePasswordError.setContentText("Incorrect username/password. Try again!");
+			ViewUserLogin.alertUsernamePasswordError.setHeaderText("Incorrect username/password");
+			ViewUserLogin.alertUsernamePasswordError.setContentText("Please Make Corrections and Try again!");
 			ViewUserLogin.alertUsernamePasswordError.showAndWait();
 			return;
 		}
 		System.out.println("*** Password is valid for this user");
+		
+		boolean accountActive = theDatabase.getActiveStatus(username);
+		
+		//If the user's account has been deactivated stop login process
+		if (!accountActive) 
+		{
+			ViewUserLogin.alertUsernamePasswordError.setHeaderText("This Account Has Been Disabled :(");
+			ViewUserLogin.alertUsernamePasswordError.setContentText("Contact an administrator to regain access.");
+			ViewUserLogin.alertUsernamePasswordError.showAndWait();
+			return;
+		}
+		
+		boolean mustResetPassword = theDatabase.doesUserNeedPasswordReset(username);
+		
+		//If the user needs to reset their password force them to reset the password
+		if (mustResetPassword) 
+		{
+			//Create New Two Input Dialog
+			TwoInputDialog passwordChange = new TwoInputDialog("Change Password", "Your password was reset.\nCreate a new one to continue.", "New Password", "Confirm New Password");
+			
+			//Create Alert for Invalid Passwords
+			Alert invalidAlert = new Alert(AlertType.ERROR);
+			invalidAlert.setTitle("Operation Incomplete");
+			invalidAlert.setHeaderText("Invalid Password");
+			
+			//Create Var For Dialog Results
+			Optional<TwoStringResults> pChangeResults;
+			
+			//Error Message String
+			String errMessage = "placeholder";
+			
+			//Repeat Until Password Has Successfully Changed
+			while(errMessage != "") 
+			{
+				pChangeResults = passwordChange.showAndWait(); //Show Dialog
+				
+				if(pChangeResults.isPresent()) 
+				{
+					TwoStringResults inputs = pChangeResults.get();
+					
+					//Get the output of the dialog
+					String pInput1 = inputs.getText1();
+					String pInput2 = inputs.getText2();
+					
+					
+					
+					//If the passwords do not match
+					if (!pInput1.equals(pInput2)) 
+					{
+						errMessage = "Passwords Do Not Match";
+					} else 
+					{
+						errMessage = passChecker.evaluatePassword(pInput1);   //Use Password Checker to validate new password
+					}
+					
+					//If there is no error update the password
+					if (errMessage == "") 
+					{
+						theDatabase.updatePassword(username, pInput1);
+						theDatabase.updateUserPasswordReset(username, false);
+						password = pInput1;
+						invalidAlert.setAlertType(AlertType.INFORMATION);
+						invalidAlert.setTitle("Operation Success");
+						invalidAlert.setHeaderText("Password Has Been Changed");
+						invalidAlert.setContentText("Please log in using new password.");
+						invalidAlert.showAndWait();
+					} else 
+					{
+						//Setup and show error dialog
+						invalidAlert.setContentText("Reason: " + errMessage + "\n\nPlease Make Changes and Try Again");
+						invalidAlert.showAndWait();
+					}
+				}
+			}
+		}
 
 		// Establish this user's details
 		User user = new User(username, password, theDatabase.getCurrentFirstName(), theDatabase.getCurrentMiddleName(),
