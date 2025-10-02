@@ -6,20 +6,17 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.property.ReadOnlyStringWrapper;
 
 import java.util.List;
 import java.util.Optional;
 
 public class AdminUsersDialog {
-
+	
+	
     private final AdminService service = new AdminServiceImpl();
     private final TableView<UserSummary> table = new TableView<>();
     private final ComboBox<Role> roleFilter = new ComboBox<>();
@@ -127,8 +124,12 @@ public class AdminUsersDialog {
         UserSummary u = selectedOrWarn();
         if (u == null) return;
         boolean ok = service.setActive(u.getUserId(), active);
-        new Alert(ok ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
-                (ok ? (active ? "Activated: " : "Deactivated: ") : "Operation failed: ") + u.getUserId()).showAndWait();
+        Alert alert = new Alert(ok ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
+                (ok ? (active ? "Activated: " : "Deactivated: ") : "Operation failed: ") + u.getUserId());
+        alert.setTitle(ok ? "Operation Success" : "Operation Incomplete");
+        alert.setHeaderText("");
+        alert.showAndWait();
+        
         if (ok) refresh();
     }
 
@@ -141,10 +142,41 @@ public class AdminUsersDialog {
         dlg.setHeaderText("Change role for: " + u.getUserId());
         dlg.setContentText("Select new role:");
         dlg.showAndWait().ifPresent(newRole -> {
+        	
+        	//If the Role is none it will have to deactivate the user
+        	if(newRole == Role.NONE) 
+        	{
+        		//Give an Alert Letting the User know it will deactivate the account
+        		Alert noneConfirm = new Alert(Alert.AlertType.WARNING,"Setting a users role to NONE will deactivate their account. Proceed?", ButtonType.YES, ButtonType.NO);
+        		noneConfirm.setHeaderText("Warning!");
+        		ButtonType confirmAnswer = noneConfirm.showAndWait().orElse(ButtonType.NO);
+        		
+        		//If they answer yes attempt to deactivate the account
+        		if (confirmAnswer == ButtonType.YES) 
+    			{
+        			boolean ok = service.setActive(u.getUserId(), false); //Ok Bool Determines if the operation was a success
+        			
+        			
+        			// If not ok show an Alert and cancel role change operation
+        			if (!ok) 
+        			{
+        				Alert alert = new Alert(Alert.AlertType.ERROR, "Reason: Protect Last Admin");
+        				alert.setTitle("Operation Incomplete");
+        				alert.setHeaderText("This Action Cannot Be Done");
+        				alert.showAndWait();
+        				return;
+        			}
+        			
+    			} else return; //If User Elected to not change the role to none cancel the role change operation
+        	}
+        	
             boolean ok = service.changeRole(u.getUserId(), newRole);
-            new Alert(ok ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
+            Alert alert = new Alert(ok ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
                     ok ? ("Role updated to " + newRole + " for " + u.getUserId())
-                       : "Cannot change role (e.g., protect last ADMIN).").showAndWait();
+                       : "Reason: Protect Last Admin");
+            alert.setTitle(ok ? "Operation Success" : "Operation Incomplete");
+            alert.setHeaderText(ok ? "Role Successfully Changed": "This Action Cannot Be Done");
+            alert.showAndWait();
             if (ok) refresh();
         });
     }
@@ -154,8 +186,12 @@ public class AdminUsersDialog {
         UserSummary u = selectedOrWarn();
         if (u == null) return;
         String temp = service.resetPassword(u.getUserId());
-        new Alert(Alert.AlertType.INFORMATION,
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,
                 "Temporary password for " + u.getUserId() + ":\n\n" + temp +
-                "\n\nUser will be forced to change it at next login.").showAndWait();
+                "\n\nUser will be forced to change it at next login.");
+        alert.setTitle("Password Reset");
+        alert.setHeaderText("");
+        alert.showAndWait();
+        
     }
 }

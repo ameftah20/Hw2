@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import admin.Role;
 
 import entityClasses.User;
 
@@ -127,7 +128,7 @@ public class Database {
 				+ "userName VARCHAR(255) UNIQUE, " + "password VARCHAR(255), " + "firstName VARCHAR(255), "
 				+ "middleName VARCHAR(255), " + "lastName VARCHAR (255), " + "preferredFirstName VARCHAR(255), "
 				+ "emailAddress VARCHAR(255), " + "adminRole BOOL DEFAULT FALSE, " + "newRole1 BOOL DEFAULT FALSE, "
-				+ "newRole2 BOOL DEFAULT FALSE)";
+				+ "newRole2 BOOL DEFAULT FALSE," + "mustResetPass BOOL DEFAULT FALSE," + "accountActive BOOL DEFAULT TRUE)";
 		statement.execute(userTable);
 
 		// Create the invitation codes table
@@ -553,7 +554,7 @@ public class Database {
 	
 	/*******
 	 * <p>
-	 * Method: String getRole (String username)
+	 * Method: Role getRoleByUser(String username)
 	 * </p>
 	 * 
 	 * <p>
@@ -566,21 +567,133 @@ public class Database {
 	 * 
 	 */
 	//For a given username return the role associated with that user
-	//TO DO: This is not fully implemented the database stores role values as booleans so we will need to either
-	//change the way they store it (HARD idk sql) or find a way to convert the booleans to a returned string/enum
-	public String getRole(String username) 
+	public Role getRoleByUser(String username) 
 	{
-		String query = "SELECT role FROM userDB WHERE username = ?";
+		String query = "SELECT adminRole, newRole1, newRole2 FROM userDB WHERE username = ?";      //Query All the Roles
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			pstmt.setString(1, username);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
-				return rs.getString("role");
+				if(rs.getBoolean("adminRole")) return Role.ADMIN; //If Admin Return Admin
+				if(rs.getBoolean("newRole1")) return Role.NEWROLE1; //If New Role 1 Return New Role 1
+				if(rs.getBoolean("newRole2")) return Role.NEWROLE2; //If New Role 2 Return New Role 2
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return "";
+		return Role.NONE;
+	}
+	
+	/*******
+	 * <p>
+	 * Method: boolean getActiveStatus(String username)
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: Get the account's activity status
+	 * </p>
+	 * 
+	 * @param username is the username to query
+	 * 
+	 * @return the active status of that user
+	 * 
+	 */
+	//For a given username return the status of the account
+	public boolean getActiveStatus(String username) 
+	{
+		String query = "SELECT accountActive FROM userDB WHERE username = ?";      //Query All the Roles
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return rs.getBoolean("accountActive");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/*******
+	 * <p>
+	 * Method: void updateActiveStatus(String username, boolean active)
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: Sets the user's active status
+	 * </p>
+	 * 
+	 * @param username is the username of the user
+	 * 
+	 * @param active is the new status of the user
+	 * 
+	 */
+	// update the active status
+	public void updateActiveStatus(String username, boolean active) {
+		String query = "UPDATE userDB SET accountActive = ? WHERE username = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, (active) ? "TRUE" : "FALSE");
+			pstmt.setString(2, username);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*******
+	 * <p>
+	 * Method: boolean doesUserNeedPasswordReset(String username) 
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: Determine if the user needs to reset their password
+	 * </p>
+	 * 
+	 * @param username is the username to query
+	 * 
+	 * @return the role of that user
+	 * 
+	 */
+	//For a given username return the status of the account
+	public boolean doesUserNeedPasswordReset(String username) 
+	{
+		String query = "SELECT mustResetPass FROM userDB WHERE username = ?";      //Query All the Roles
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return rs.getBoolean("mustResetPass");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/*******
+	 * <p>
+	 * Method: void updateUserPasswordReset(String username, boolean active)
+	 * </p>
+	 * 
+	 * <p>
+	 * Description: Sets the status of the users need to reset their password
+	 * </p>
+	 * 
+	 * @param username is the username of the user
+	 * 
+	 * @param active is the new status of forced password reset
+	 * 
+	 */
+	// update the active status
+	public void updateUserPasswordReset(String username, boolean active) {
+		String query = "UPDATE userDB SET mustResetPass = ? WHERE username = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, (active) ? "TRUE" : "FALSE");
+			pstmt.setString(2, username);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/*******
@@ -849,7 +962,7 @@ public class Database {
 			ResultSet rs = pstmt.executeQuery();
 
 			if (rs.next()) {
-				return rs.getString("firstName"); // Return the preferred first name if user exists
+				return rs.getString("preferredFirstName"); // Return the preferred first name if user exists
 			}
 
 		} catch (SQLException e) {
@@ -1031,53 +1144,55 @@ public class Database {
 	 * 
 	 */
 	// Update a users role
-	public boolean updateUserRole(String username, String role, String value) {
-		if (role.compareTo("Admin") == 0) {
-			String query = "UPDATE userDB SET adminRole = ? WHERE username = ?";
-			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-				pstmt.setString(1, value);
-				pstmt.setString(2, username);
-				pstmt.executeUpdate();
-				if (value.compareTo("true") == 0)
-					currentAdminRole = true;
-				else
-					currentAdminRole = false;
-				return true;
-			} catch (SQLException e) {
+	public boolean updateUserRole(String username, Role role, String value) {
+		String query = "";
+		switch (role) 
+		{
+			case Role.ADMIN:
+				query = "UPDATE userDB SET adminRole = ? WHERE username = ?";
+				try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+					pstmt.setString(1, value);
+					pstmt.setString(2, username);
+					pstmt.executeUpdate();
+					if (value.compareTo("true") == 0)
+						currentAdminRole = true;
+					else
+						currentAdminRole = false;
+					return true;
+				} catch (SQLException e) {
+					return false;
+				}
+		case Role.NEWROLE1:
+				query = "UPDATE userDB SET newRole1 = ? WHERE username = ?";
+				try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+					pstmt.setString(1, value);
+					pstmt.setString(2, username);
+					pstmt.executeUpdate();
+					if (value.compareTo("true") == 0)
+						currentNewRole1 = true;
+					else
+						currentNewRole1 = false;
+					return true;
+				} catch (SQLException e) {
+					return false;
+				}
+			case Role.NEWROLE2:
+				query = "UPDATE userDB SET newRole2 = ? WHERE username = ?";
+				try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+					pstmt.setString(1, value);
+					pstmt.setString(2, username);
+					pstmt.executeUpdate();
+					if (value.compareTo("true") == 0)
+						currentNewRole2 = true;
+					else
+						currentNewRole2 = false;
+					return true;
+				} catch (SQLException e) {
+					return false;
+				}
+			default:
 				return false;
-			}
 		}
-		if (role.compareTo("Role1") == 0) {
-			String query = "UPDATE userDB SET newRole1 = ? WHERE username = ?";
-			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-				pstmt.setString(1, value);
-				pstmt.setString(2, username);
-				pstmt.executeUpdate();
-				if (value.compareTo("true") == 0)
-					currentNewRole1 = true;
-				else
-					currentNewRole1 = false;
-				return true;
-			} catch (SQLException e) {
-				return false;
-			}
-		}
-		if (role.compareTo("Role2") == 0) {
-			String query = "UPDATE userDB SET newRole2 = ? WHERE username = ?";
-			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-				pstmt.setString(1, value);
-				pstmt.setString(2, username);
-				pstmt.executeUpdate();
-				if (value.compareTo("true") == 0)
-					currentNewRole2 = true;
-				else
-					currentNewRole2 = false;
-				return true;
-			} catch (SQLException e) {
-				return false;
-			}
-		}
-		return false;
 	}
 
 	// Attribute getters for the current user

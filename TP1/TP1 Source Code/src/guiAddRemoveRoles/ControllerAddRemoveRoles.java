@@ -1,5 +1,6 @@
 package guiAddRemoveRoles;
 
+import admin.Role;
 import database.Database;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
@@ -119,9 +120,9 @@ public class ControllerAddRemoveRoles {
 		if (theDatabase.getCurrentAdminRole())
 			ViewAddRemoveRoles.removeList.add("Admin");
 		if (theDatabase.getCurrentNewRole1())
-			ViewAddRemoveRoles.removeList.add("Role1");
+			ViewAddRemoveRoles.removeList.add("NewRole1");
 		if (theDatabase.getCurrentNewRole2())
-			ViewAddRemoveRoles.removeList.add("Role2");
+			ViewAddRemoveRoles.removeList.add("NewRole2");
 
 		// Create the list or roles that the user currently has with proper use of a
 		// comma between
@@ -183,6 +184,7 @@ public class ControllerAddRemoveRoles {
 	 * </p>
 	 * 
 	 */
+	
 	protected static void performAddRole() {
 
 		// Determine which item in the ComboBox list was selected
@@ -192,9 +194,8 @@ public class ControllerAddRemoveRoles {
 		// anything
 		if (ViewAddRemoveRoles.theAddRole.compareTo("<Select a role>") != 0) {
 
-			// If an actual role was selected, update the database entry for that user for
-			// the role
-			if (theDatabase.updateUserRole(ViewAddRemoveRoles.theSelectedUser, ViewAddRemoveRoles.theAddRole, "true")) {
+			// If an actual role was selected, update the database entry for that user for the role
+			if (theDatabase.updateUserRole(ViewAddRemoveRoles.theSelectedUser, Role.valueOf(ViewAddRemoveRoles.theAddRole.toUpperCase()), "true")) {
 				ViewAddRemoveRoles.combobox_SelectRoleToAdd = new ComboBox<String>();
 				ViewAddRemoveRoles.combobox_SelectRoleToAdd
 						.setItems(FXCollections.observableArrayList(ViewAddRemoveRoles.addList));
@@ -226,7 +227,7 @@ public class ControllerAddRemoveRoles {
 
 			// If an actual role was selected, update the database entry for that user for
 			// the role
-			if (theDatabase.updateUserRole(ViewAddRemoveRoles.theSelectedUser, ViewAddRemoveRoles.theRemoveRole,
+			if (theDatabase.updateUserRole(ViewAddRemoveRoles.theSelectedUser, Role.valueOf(ViewAddRemoveRoles.theRemoveRole.toUpperCase()),
 					"false")) {
 				ViewAddRemoveRoles.combobox_SelectRoleToRemove = new ComboBox<String>();
 				ViewAddRemoveRoles.combobox_SelectRoleToRemove

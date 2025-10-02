@@ -50,7 +50,7 @@ public class ViewUserLogin {
 	private static Label label_OperationalStartTitle = new Label("Log In or Invited User Account Setup ");
 	private static Label label_LogInInsrtuctions = new Label(
 			"Enter your user name and password and " + "then click on the LogIn button");
-	protected static Alert alertUsernamePasswordError = new Alert(AlertType.INFORMATION);
+	protected static Alert alertUsernamePasswordError = new Alert(AlertType.ERROR);
 
 	// private User user;
 	protected static TextField text_Username = new TextField();
